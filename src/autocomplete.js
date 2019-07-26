@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import Creatable from 'react-select/creatable';
 
 const components = {
