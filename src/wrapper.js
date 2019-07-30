@@ -1,23 +1,47 @@
 import ReactDOM from 'react-dom'
 import React, { createElement } from 'react';
 import Autocomplete from './autocomplete'
+import Select from 'react-select';
+import AsyncSelect from 'react-select/async';
 
-function accessibleAutocomplete (options) {
-  if (!options.element) { throw new Error('element is not defined') }
-  if (!options.id) { throw new Error('id is not defined') }
-  if (!options.source) { throw new Error('source is not defined') }
-  if (Array.isArray(options.source)) {
-    options.source = createSimpleEngine(options.source)
-  }
-  ReactDOM.render(<Autocomplete {...options} />, options.element)
+// function drupalAutocomplete (options) {
+//   if (!options.element) { throw new Error('element is not defined') }
+//   if (!options.id) { throw new Error('id is not defined') }
+//   if (!options.source) { throw new Error('source is not defined') }
+//   if (Array.isArray(options.source)) {
+//     options.source = createSimpleEngine(options.source)
+//   }
+//   ReactDOM.render(<Autocomplete {...options} />, options.element)
+// }
+
+
+
+// function drupalAutocomplete (options) {
+//   console.log('accessible options lololol', options);
+//
+//   ReactDOM.render(<Select {...options} />, document.getElementById(options.id))
+// }
+
+function drupalAutocomplete (options) {
+ // console.log('big bad autocomplete', options);
+  // if (!options.element) { throw new Error('element is not defined') }
+  // if (!options.id) { throw new Error('id is not defined') }
+  // if (!options.source) { throw new Error('source is not defined') }
+  // if (Array.isArray(options.source)) {
+  //   options.source = createSimpleEngine(options.source)
+  // }
+ // ReactDOM.render(<Autocomplete {...options} />, options.element)
+  ReactDOM.render(<Autocomplete {...options} />, document.getElementById(options.wrapperid));
 }
+
+
 
 const createSimpleEngine = (values) => (query, syncResults) => {
   var matches = values.filter(r => r.toLowerCase().indexOf(query.toLowerCase()) !== -1)
   syncResults(matches)
 }
 
-accessibleAutocomplete.enhanceSelectElement = (configurationOptions) => {
+drupalAutocomplete.enhanceSelectElement = (configurationOptions) => {
   if (!configurationOptions.selectElement) { throw new Error('selectElement is not defined') }
 
   // Set defaults.
@@ -49,7 +73,7 @@ accessibleAutocomplete.enhanceSelectElement = (configurationOptions) => {
 
   configurationOptions.selectElement.parentNode.insertBefore(element, configurationOptions.selectElement)
 
-  accessibleAutocomplete({
+  drupalAutocomplete({
     ...configurationOptions,
     element: element
   })
@@ -58,4 +82,4 @@ accessibleAutocomplete.enhanceSelectElement = (configurationOptions) => {
   configurationOptions.selectElement.id = configurationOptions.selectElement.id + '-select'
 }
 
-export default accessibleAutocomplete
+export default drupalAutocomplete

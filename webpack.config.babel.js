@@ -11,11 +11,7 @@ const plugins = [
   })
 ]
 
-const developmentPlugins = [
-  new CopyWebpackPlugin([
-    { from: './autocomplete.css', to: 'accessible-autocomplete.min.css' }
-  ])
-]
+const developmentPlugins = []
 
 const config = {
   context: path.resolve(__dirname, 'src'),
@@ -95,7 +91,7 @@ const config = {
     port: process.env.PORT || 8080,
     host: '0.0.0.0',
     publicPath: '/dist/',
-    contentBase: ['./examples', './src'],
+    contentBase: ['./src'],
     historyApiFallback: true,
     open: true,
     watchContentBase: true,
@@ -106,13 +102,13 @@ const config = {
 const bundleStandalone = {
   ...config,
   entry: {
-    'accessible-autocomplete.min': './wrapper.js'
+    'drupal-autocomplete.min': './wrapper.js'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
     filename: '[name].js',
-    library: 'accessibleAutocomplete',
+    library: 'drupalAutocomplete',
     libraryExport: 'default',
     libraryTarget: 'umd'
   },

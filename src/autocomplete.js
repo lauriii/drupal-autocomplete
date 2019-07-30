@@ -11,6 +11,7 @@ class App extends React.Component {
     isFetching: null,
     options: null,
     inputValue: '',
+
   };
 
   constructor(props){
@@ -18,54 +19,75 @@ class App extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.selectRef = React.createRef();
+    this.isMulti = this.props.cardinality !== "1";
   }
 
-  fetchPosts = () => {
+  componentWillMount = () => {
+    this.defaultValue = this.props.attributes.value.split(',').map(item => {
+      const label = item.substring(0, item.indexOf('('));
+      return { label: item.trim(), value: label.trim() };
+    }).filter(item => item.value.length > 0);
+    if (this.defaultValue.length > 0) {
+      this.setState({ selectedOption: this.defaultValue});
+    }
+  }
+
+  fetchResults = () => {
     this.setState({ isFetching: true });
-    fetch('https://jsonplaceholder.typicode.com/posts').then((response) => {
+    const apiUrl = `${this.props.endpoint}?q=${this.state.inputValue}`;
+    fetch(apiUrl).then((response) => {
       return response.json();
     })
-    .then((result) => {
-      const options = result.map((post) => {
-        return { value: post.id, label: post.title };
+      .then((result) => {
+        const options = result.map((item) => {
+          return { value: item.label, label: item.value };
+        });
+        this.setState({ options: options });
       });
-      this.setState({ options: options });
-    });
   };
 
-  handleChange = selectedOption => {
-    this.setState({ ...this.state, selectedOption }, () => {
+  handleChange = (selectedOption, event) => {
+    this.setState({ ...this.state, inputValue: '', selectedOption }, () => {
       this.selectRef.current.focus();
+      let values = '';
+      if (this.isMulti) {
+        values = this.state.selectedOption.map(item => item.label).join(', ');
+      } else {
+        values = this.state.selectedOption.label;
+      }
+      const hiddenId = this.props.attributes.id;
+
+      document.getElementById(hiddenId).value = values.trim();
     });
-    console.log(`Option selected:`, selectedOption);
+
   };
 
-  handleInputChange(newValue) {
-    if (!newValue) {
-      this.setState({ options: null });
-    } else {
-      this.fetchPosts();
-    }
-    this.setState( { inputValue: newValue });
+  handleInputChange = (newValue, whatever) => {
+    this.setState( { inputValue: newValue }, () => {
+      if (newValue) {
+        this.fetchResults();
+      } else {
+        this.setState({ options: [] });
+      }
+    });
   }
 
-  render() {
+  render () {
     const { selectedOption, options, inputValue } = this.state;
-
     return (
-      <div className="app">
-        <Creatable
-          inputValue={inputValue}
-          components={components}
-          value={selectedOption}
-          options={options}
-          onChange={this.handleChange}
-          onInputChange={this.handleInputChange}
-          isMulti
-          ref={this.selectRef}
-          menuIsOpen={options !== null ? undefined : false}
-        />
-      </div>
+      <Creatable
+        inputValue={inputValue}
+        components={components}
+        defaultValue={this.props.attributes.value}
+        value={selectedOption}
+        options={options}
+        onChange={this.handleChange}
+        onInputChange={this.handleInputChange}
+        isMulti={this.props.cardinality !== "1"}
+        ref={this.selectRef}
+        menuIsOpen={options !== null ? undefined : false}
+        inputId={this.props.inputId}
+      />
     );
   }
 }
